@@ -1,0 +1,60 @@
+---
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - filip-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./filip-backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - 8000:8000
+    environment:
+      - DEBUG
+      - OPENAI_API_KEY
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    depends_on:
+      - postgres
+    networks:
+      - filip-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx@sha256:88b3388ea06c7262e410a3ab5c05dc4088b7b39dea569addd8c30766f4f47440
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ${CONFIG}/nginx/${DOMAIN_NAME}.conf:/etc/nginx/conf.d/${DOMAIN_NAME}.conf:ro
+      - ${CONFIG}/certbot/conf:/etc/letsencrypt:ro
+      - ${CONFIG}/certbot/www:/var/www/certbot:ro
+    networks:
+      - filip-network
+    restart: unless-stopped
+
+  # BEGIN ANSIBLE MANAGED CERTBOT BLOCK
+  # END ANSIBLE MANAGED CERTBOT BLOCK
+
+networks:
+  filip-network:
+
+volumes:
+  pgdata:
