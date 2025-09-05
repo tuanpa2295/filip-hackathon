@@ -1,10 +1,15 @@
+import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+logger = logging.getLogger(__name__)
+
 
 class LearningPathView(APIView):
     def get(self, request):
+        logger.info(f"Learning path list request - IP: {request.META.get('REMOTE_ADDR')}")
+        
         data = [
             {
                 "id": 1,

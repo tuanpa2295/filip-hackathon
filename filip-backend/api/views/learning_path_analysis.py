@@ -1,11 +1,12 @@
 import json
+import logging
 import re
 from datetime import datetime, timedelta
 
 from drf_spectacular.utils import extend_schema
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -15,8 +16,17 @@ from api.serializers.learningpath_analytic_request_serializer import (
 from api.serializers.learningpath_analytic_response_serializer import (
     LearningPathAnalyticResponseSerializer,
 )
+from filip import settings
 
-llm = ChatOpenAI(temperature=0.4)
+logger = logging.getLogger(__name__)
+
+llm = AzureChatOpenAI(
+    openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+    azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+    api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+    model=settings.AZURE_OPENAI_CHAT_MODEL,
+    temperature=0.4,
+)
 output_parser = StrOutputParser()
 prompt_template = ChatPromptTemplate.from_messages(
     [
@@ -60,6 +70,8 @@ class LearningPathAnalysisView(APIView):
         description="Analyze learning plan based on available time and course info. ",
     )
     def post(self, request):
+        logger.info(f"Learning path analysis request started - IP: {request.META.get('REMOTE_ADDR')}")
+        
         try:
             data = request.data
             courses = data.get("courses", [])
@@ -67,7 +79,10 @@ class LearningPathAnalysisView(APIView):
             end_date = datetime.strptime(data["end_date"], "%Y-%m-%d")
             hours_per_week = float(data["available_hours_per_week"])
 
+            logger.info(f"Learning path analysis parameters - Courses: {len(courses)}, Start: {start_date}, End: {end_date}, Hours/week: {hours_per_week}")
+
             if end_date <= start_date:
+                logger.warning("Learning path analysis failed: End date must be after start date")
                 return Response(
                     {"error": "End date must be after start date"}, status=400
                 )
@@ -103,6 +118,9 @@ class LearningPathAnalysisView(APIView):
                 risk_level = "medium"
             else:
                 risk_level = "low"
+                
+            logger.info(f"Learning path calculations - Total hours: {total_required_hours}, Risk level: {risk_level}, Days diff: {days_diff}")
+            
             prompt = (
                 f"You are a career coach analyzing a learning path.\n"
                 f"Start Date: {start_date}\n"
@@ -115,12 +133,15 @@ class LearningPathAnalysisView(APIView):
                 f"[{{'type': 'suggestion'|'warning'|'success', 'title': string, 'message': string, 'action': string}}]"
             )
             try:
+                logger.debug("Generating LLM feedback for learning path analysis")
                 response = generate_feedback(prompt)
                 if response.strip().startswith("```"):
                     response = response.strip().strip("`").strip("json").strip()
                 print("🔍 RAW LLM response:", response)
                 recommendations = json.loads(response)
-            except Exception:
+                logger.info(f"LLM feedback generated successfully - {len(recommendations)} recommendations")
+            except Exception as e:
+                logger.error(f"LLM feedback generation failed: {str(e)}", exc_info=True)
                 recommendations = [
                     {
                         "type": "warning",
@@ -129,6 +150,8 @@ class LearningPathAnalysisView(APIView):
                         "action": "Please try again later.",
                     }
                 ]
+                
+            logger.info("Learning path analysis completed successfully")
             return Response(
                 {
                     "totalHours": total_required_hours,
@@ -143,4 +166,5 @@ class LearningPathAnalysisView(APIView):
             )
 
         except Exception as e:
+            logger.error(f"Learning path analysis failed: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=500)

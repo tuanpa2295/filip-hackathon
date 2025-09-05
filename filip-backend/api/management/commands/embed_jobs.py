@@ -3,7 +3,7 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain.schema.document import Document as LangchainDocument
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 
 from api.models import JobPost
@@ -26,7 +26,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("No job posts to process."))
             return
 
-        llm = ChatOpenAI(model="gpt-4o", temperature=0)
+        llm = AzureChatOpenAI(
+            azure_deployment=settings.AZURE_OPENAI_CHAT_MODEL,
+            openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+            azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+            api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+            temperature=0,
+        )
 
         prompt_template = """
         Summarize the following job description in a concise paragraph that captures:
@@ -100,18 +106,42 @@ class Command(BaseCommand):
                     self.style.ERROR(f"🚨 Failed to update summaries for batch: {e}")
                 )
 
-            # Store embeddings in PGVector
+            # Store embeddings in PGVector AND update JobPost.embedding field
             if documents:
                 try:
+                    # Initialize embedder
+                    embedder = AzureOpenAIEmbeddings(
+                        openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                        api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+                        model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+                    )
+                    
+                    # Generate embeddings for JobPost.embedding field
+                    for i, (job_post, document) in enumerate(zip(updated_posts, documents)):
+                        try:
+                            vector = embedder.embed_query(document.page_content)
+                            job_post.embedding = vector
+                        except Exception as e:
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    f"❌ Failed to generate embedding for job {job_post.id}: {e}"
+                                )
+                            )
+                    
+                    # Update JobPost.embedding field in database
+                    JobPost.objects.bulk_update(updated_posts, ["embedding"])
+                    
+                    # Store embeddings in PGVector for similarity search
                     PGVector.from_documents(
                         documents=documents,
-                        embedding=OpenAIEmbeddings(),
+                        embedding=embedder,
                         connection=settings.PGVECTOR_CONNECTION,
                         collection_name=COLLECTION_NAME,
                     )
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f"✅ Embedded and stored batch {start+1}–{end} in '{COLLECTION_NAME}'"
+                            f"✅ Embedded and stored batch {start+1}–{end} in '{COLLECTION_NAME}' and JobPost table"
                         )
                     )
                 except Exception as e:

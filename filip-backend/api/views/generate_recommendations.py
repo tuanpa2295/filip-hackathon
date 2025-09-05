@@ -1,3 +1,4 @@
+import logging
 from django.http import JsonResponse, StreamingHttpResponse
 from openai import OpenAI
 from pgvector.django import CosineDistance
@@ -9,22 +10,31 @@ from api.utils.embedding import embed_text
 from filip import settings
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
+logger = logging.getLogger(__name__)
 
 
 class GenerateRecommendationsView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        logger.info(f"Generate recommendations request started - IP: {request.META.get('REMOTE_ADDR')}")
+        
         prompt = request.data.get("prompt")
         if not prompt:
+            logger.warning("Generate recommendations failed: Missing query parameter")
             return JsonResponse({"error": "Query is required"}, status=400)
 
+        logger.info(f"Processing recommendation query: '{prompt[:100]}...'")
+
         # Step 1: Embed query
+        logger.debug("Generating embedding for query")
         embedding = embed_text(prompt)
         if embedding is None:
+            logger.error("Embedding generation failed for query")
             return JsonResponse({"error": "Embedding failed"}, status=500)
 
         # Step 2: Vector search with Django ORM
+        logger.debug("Performing vector search in database")
         courses = (
             UdemyCourse.objects.annotate(
                 similarity=CosineDistance("embedding", embedding)
@@ -32,6 +42,8 @@ class GenerateRecommendationsView(APIView):
             .order_by("similarity")[:30]
             .values_list("title", "description", "level", "url", "duration")
         )
+
+        logger.info(f"Found {len(courses)} relevant courses from vector search")
 
         # Step 3: Format text for prompt
         courses_text = ""
@@ -50,6 +62,7 @@ Respond with steps, each containing course title, duration, URL, and estimated p
         # Step 4: Streaming GPT response
         def gpt_stream():
             try:
+                logger.debug("Starting OpenAI streaming response")
                 response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
@@ -62,7 +75,9 @@ Respond with steps, each containing course title, duration, URL, and estimated p
                     content = chunk.choices[0].delta.content
                     if content:
                         yield content
+                logger.info("OpenAI streaming response completed successfully")
             except Exception as e:
+                logger.error(f"OpenAI streaming failed: {str(e)}", exc_info=True)
                 yield f"\n\n[Error from OpenAI: {e}]"
 
         return StreamingHttpResponse(gpt_stream(), content_type="text/plain")

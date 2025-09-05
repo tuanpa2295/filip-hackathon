@@ -1,12 +1,18 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import AzureOpenAIEmbeddings
 
 from api.models import Skill
+from filip import settings
 
 BATCH_SIZE = 10
 
-embedder = OpenAIEmbeddings()
+embedder = AzureOpenAIEmbeddings(
+    openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+    azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+    api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+    model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+)
 
 
 class Command(BaseCommand):

@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid4
 
 from django.core.files.uploadedfile import UploadedFile
@@ -15,6 +16,8 @@ from api.services import (
     fetch_skills_from_akajob,
 )
 from api.types import LLMUsage
+
+logger = logging.getLogger(__name__)
 
 
 class SkillAnalysisRequest(TypedDict):
@@ -55,6 +58,8 @@ class SkillAnalysisView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request: Request):
+        logger.info(f"Skill analysis request started - IP: {request.META.get('REMOTE_ADDR')}")
+        
         data = cast(SkillAnalysisRequest, request.data)
         # learning_type = data.get("learning_type", "individual")
         user_description = data.get("user_description", "")
@@ -63,19 +68,26 @@ class SkillAnalysisView(APIView):
         project_requirements = data.get("project_requirements", "")
         thread_id = data.get("thread_id", str(uuid4()))
 
+        logger.info(f"Skill analysis parameters - Provider: {provider}, Timeline: {timeline}, Thread ID: {thread_id}")
+
         cv_result = fetch_skills_from_akajob()
 
         if provider == "cv":
             cv_file = cast(MultiValueDict, request.FILES).get("cv_file")
             if not cv_file:
+                logger.warning("Skill analysis request failed: Missing CV file")
                 return Response(
                     {"error": "Missing 'cv_file' for CV provider."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+            logger.info(f"Processing CV file: {cv_file.name} ({cv_file.size} bytes)")
+            
             try:
                 cv_text = extract_text_from_file(cv_file)
+                logger.debug(f"Extracted CV text length: {len(cv_text)} characters")
             except Exception as e:
+                logger.error(f"CV text extraction failed: {str(e)}", exc_info=True)
                 return Response(
                     {"error": f"Failed to read CV file: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -83,13 +95,17 @@ class SkillAnalysisView(APIView):
 
             try:
                 cv_result = extract_data_from_cv_text(cv_text)
+                extracted_skills_count = len(cv_result.get("extracted_skills", []))
+                logger.info(f"CV analysis completed - extracted {extracted_skills_count} skills")
             except Exception as e:
+                logger.error(f"CV data extraction failed: {str(e)}", exc_info=True)
                 return Response(
                     {"error": f"Failed to analyze CV: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         try:
+            logger.info("Starting skill gap analysis pipeline")
             skill_gap_result = run_skill_gap_pipeline(
                 current_skills=[
                     {
@@ -103,7 +119,13 @@ class SkillAnalysisView(APIView):
                 project_requirements=project_requirements,
                 thread_id=thread_id,
             )
+            
+            recommended_skills_count = len(skill_gap_result.get("recommended_skills", []))
+            overall_score = skill_gap_result.get("overall_score", 0)
+            logger.info(f"Skill gap analysis completed - {recommended_skills_count} recommendations, score: {overall_score}")
+            
         except Exception as e:
+            logger.error(f"Skill gap analysis failed: {str(e)}", exc_info=True)
             return Response(
                 {"error": f"Skill gap analysis failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -114,6 +136,9 @@ class SkillAnalysisView(APIView):
         )
 
         llm_usage["total"] = _compute_total_llm_usage(llm_usage)
+        
+        logger.info(f"Skill analysis request completed successfully - Thread ID: {thread_id}")
+        logger.debug(f"Total LLM usage: {llm_usage.get('total', {})}")
 
         return Response(
             {

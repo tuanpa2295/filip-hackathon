@@ -1,7 +1,7 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
 from langchain.schema import Document
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import AzureOpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 
 from filip import settings
@@ -11,6 +11,14 @@ class Command(BaseCommand):
     help = (
         "Generate and store vector embeddings for courses from a CSV file into PGVector"
     )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--file",
+            type=str,
+            required=True,
+            help="Path to the CSV file containing course data",
+        )
 
     def handle(self, *args, **options):
         COLLECTION_NAME = "course"
@@ -42,7 +50,12 @@ class Command(BaseCommand):
         # Step 3: Embed and store in PGVector
         PGVector.from_documents(
             documents=documents,
-            embedding=OpenAIEmbeddings(),
+            embedding=AzureOpenAIEmbeddings(
+                openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+                model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+            ),
             connection=settings.PGVECTOR_CONNECTION,
             collection_name=COLLECTION_NAME,
         )

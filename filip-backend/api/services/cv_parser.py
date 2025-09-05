@@ -6,10 +6,11 @@ from django.core.files.uploadedfile import UploadedFile
 from docx import Document
 from langchain_community.callbacks.manager import get_openai_callback
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
 from typing_extensions import Dict, List, TypedDict, cast
 
 from api.types import Education, Experience, LLMUsage, SkillGap
+from filip import settings
 
 
 class CVExtractionResult(TypedDict):
@@ -37,7 +38,13 @@ def extract_text_from_file(file: UploadedFile) -> str:
 
 
 def extract_data_from_cv_text(cv_text: str) -> CVExtractionResult:
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = AzureChatOpenAI(
+        openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+        model=settings.AZURE_OPENAI_CHAT_MODEL,
+        temperature=0,
+    )
 
     system_prompt = (
         "You are an AI that extracts structured information from a CV.\n"

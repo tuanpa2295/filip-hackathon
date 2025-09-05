@@ -4,7 +4,7 @@ import numpy as np
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import create_react_agent
@@ -41,8 +41,13 @@ def fetch_similar_role_skills(
     Given a free-text job title or description (e.g. "Senior Backend Engineer"),
     return a list of skills (name only).
     """
-    # Initialize embeddings & vector store over your existing 'jobpost' collection
-    embedder = OpenAIEmbeddings()
+    # Initialize Azure OpenAI embeddings & vector store over your existing 'jobpost' collection
+    embedder = AzureOpenAIEmbeddings(
+        api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_version=settings.AZURE_OPENAI_API_VERSION,
+        model=settings.AZURE_OPENAI_EMBEDDING_MODEL
+    )
     vectorstore = PGVector.from_existing_index(
         connection=settings.PGVECTOR_CONNECTION,
         embedding=embedder,
@@ -79,7 +84,13 @@ def enrich_skills_with_level(
         { "name": "Git", "level": "intermediate" }
     ]
     """
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = AzureChatOpenAI(
+        api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_version=settings.AZURE_OPENAI_API_VERSION,
+        model=settings.AZURE_OPENAI_CHAT_MODEL,
+        temperature=0
+    )
     skills_list_text = "\n".join(f"- {skill}" for skill in skills)
 
     prompt = (
@@ -129,7 +140,12 @@ def compute_missing(
     """
     threshold: float = 0.9
     level_rank = {"beginner": 0, "intermediate": 1, "advanced": 2}
-    embedder = OpenAIEmbeddings()
+    embedder = AzureOpenAIEmbeddings(
+        api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_version=settings.AZURE_OPENAI_API_VERSION,
+        model=settings.AZURE_OPENAI_EMBEDDING_MODEL
+    )
 
     current_names = [s["name"] for s in current_skills]
     current_levels = {s["name"]: s["level"] for s in current_skills}
@@ -200,7 +216,13 @@ def recommend_skills(
 
     The final list will be sorted by priority: High → Medium → Low.
     """
-    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    llm = AzureChatOpenAI(
+        api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_version=settings.AZURE_OPENAI_API_VERSION,
+        model=settings.AZURE_OPENAI_CHAT_MODEL,
+        temperature=0
+    )
 
     messages = [
         SystemMessage(

@@ -32,6 +32,15 @@ SECRET_KEY = "django-insecure-&m!93!jw!j62-oo-y^9*_t)3()eu#1vt6*ph(xr1kt2v1kcm11
 DEBUG = env("DEBUG")
 
 OPENAI_API_KEY: str = env("OPENAI_API_KEY")  # type: ignore
+OPENAI_EMBED_API_KEY: str = env("OPENAI_EMBED_API_KEY")
+
+# Azure OpenAI Configuration
+AZURE_OPENAI_EMBEDDING_API_KEY: str = env("AZURE_OPENAI_EMBEDDING_API_KEY", default="")
+AZURE_OPENAI_CHAT_API_KEY: str = env("AZURE_OPENAI_CHAT_API_KEY", default="")
+AZURE_OPENAI_ENDPOINT: str = env("AZURE_OPENAI_ENDPOINT", default="")
+AZURE_OPENAI_API_VERSION: str = env("AZURE_OPENAI_API_VERSION", default="2024-02-15-preview")
+AZURE_OPENAI_CHAT_MODEL: str = env("AZURE_OPENAI_CHAT_MODEL", default="")
+AZURE_OPENAI_EMBEDDING_MODEL: str = env("AZURE_OPENAI_EMBEDDING_MODEL", default="")
 
 ALLOWED_HOSTS = [
     "127.0.0.1",

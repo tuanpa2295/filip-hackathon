@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -6,16 +7,23 @@ from rest_framework.views import APIView
 
 from api.models import LearningPath, Course, Skill
 
+logger = logging.getLogger(__name__)
+
 
 class LearningPathsListView(APIView):
     def get(self, request):
         """
         Return a list of learning paths in a format used by the dashboard.
         """
+        client_ip = request.META.get('REMOTE_ADDR', 'unknown')
+        logger.info(f"[LearningPathsListView] Request started from IP: {client_ip}")
+        
         try:
             # Try to get data from the database
             learning_paths = LearningPath.objects.all()
             data = []
+            
+            logger.info(f"[LearningPathsListView] Found {learning_paths.count()} learning paths in database")
             
             # If there are learning paths in the database, use them
             if learning_paths.exists():
@@ -26,6 +34,7 @@ class LearningPathsListView(APIView):
                         if path.courses.exists():
                             # Get courses related to the learning path
                             path_courses = path.courses.all()
+                            logger.debug(f"[LearningPathsListView] Processing learning path '{path.name}' with {path_courses.count()} courses")
                             for course in path_courses:
                                 # Add skills from each course to the set
                                 if course.skills.exists():
@@ -50,18 +59,18 @@ class LearningPathsListView(APIView):
                         data.append(path_data)
                     except Exception as e:
                         # Log error but continue processing other paths
-                        print(f"Error processing learning path {path.id}: {str(e)}")
+                        logger.error(f"[LearningPathsListView] Error processing learning path {path.id}: {str(e)}", exc_info=True)
                 
+                logger.info(f"[LearningPathsListView] Successfully processed {len(data)} learning paths")
                 return Response(data)
             
             # If no learning paths exist, return empty array
+            logger.info(f"[LearningPathsListView] No learning paths found, returning empty array")
             return Response(data)
             
         except Exception as e:
             # Log the error
-            import traceback
-            print(f"Error in LearningPathsListView: {str(e)}")
-            traceback.print_exc()
+            logger.error(f"[LearningPathsListView] Error processing request from IP {client_ip}: {str(e)}", exc_info=True)
             
             # Return a simple error response
             return Response(

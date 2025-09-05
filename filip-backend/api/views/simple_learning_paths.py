@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -6,16 +7,23 @@ from rest_framework.views import APIView
 
 from api.models import LearningPath
 
+logger = logging.getLogger(__name__)
+
 
 class SimpleLearningPathsView(APIView):
     def get(self, request):
         """
         Return a simplified list of learning paths without accessing related models.
         """
+        client_ip = request.META.get('REMOTE_ADDR', 'unknown')
+        logger.info(f"[SimpleLearningPathsView] Request started from IP: {client_ip}")
+        
         try:
             # Try to get data from the database
             learning_paths = LearningPath.objects.all()
             data = []
+            
+            logger.info(f"[SimpleLearningPathsView] Found {learning_paths.count()} learning paths in database")
             
             # If there are learning paths in the database, use them
             if learning_paths.exists():
@@ -45,18 +53,18 @@ class SimpleLearningPathsView(APIView):
                             if hasattr(path, 'completed_hours'):
                                 path_data["completedHours"] = path.completed_hours
                         except Exception as attr_err:
-                            print(f"Error accessing path attributes: {attr_err}")
+                            logger.warning(f"[SimpleLearningPathsView] Error accessing path attributes for {path.id}: {attr_err}")
                         
                         data.append(path_data)
+                        logger.debug(f"[SimpleLearningPathsView] Processed learning path: {path.name}")
                     except Exception as e:
-                        print(f"Error processing learning path {path.id}: {str(e)}")
+                        logger.error(f"[SimpleLearningPathsView] Error processing learning path {path.id}: {str(e)}", exc_info=True)
             
+            logger.info(f"[SimpleLearningPathsView] Successfully processed {len(data)} learning paths")
             return Response(data)
             
         except Exception as e:
-            import traceback
-            print(f"Error in SimpleLearningPathsView: {str(e)}")
-            traceback.print_exc()
+            logger.error(f"[SimpleLearningPathsView] Error processing request from IP {client_ip}: {str(e)}", exc_info=True)
             
             return Response(
                 {"error": "An error occurred while processing your request."},

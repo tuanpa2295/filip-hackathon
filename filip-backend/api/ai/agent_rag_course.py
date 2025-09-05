@@ -4,24 +4,55 @@ import re
 
 from langchain.agents import AgentType, Tool, initialize_agent
 from langchain.chains import RetrievalQA
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 
 from filip import settings
 
 
 def get_retriever():
-    vectorstore = PGVector.from_existing_index(
-        embedding=OpenAIEmbeddings(),
-        connection=settings.PGVECTOR_CONNECTION,
-        collection_name="course",
-    )
+    try:
+        # First try to connect to existing collection
+        vectorstore = PGVector.from_existing_index(
+            embedding=AzureOpenAIEmbeddings(
+                openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+                model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+            ),
+            connection=settings.PGVECTOR_CONNECTION,
+            collection_name="course",
+        )
+    except Exception as e:
+        # If collection exists but can't connect due to constraint violation,
+        # try creating a new PGVector instance directly
+        if "duplicate key value violates unique constraint" in str(e):
+            vectorstore = PGVector(
+                embedding_function=AzureOpenAIEmbeddings(
+                    openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                    azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                    api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+                    model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+                ),
+                connection=settings.PGVECTOR_CONNECTION,
+                collection_name="course",
+                pre_delete_collection=False,  # Don't delete existing collection
+            )
+        else:
+            raise e
+    
     return vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
 
 
 def build_rag_chain():
     retriever = get_retriever()
-    llm = ChatOpenAI(temperature=0)
+    llm = AzureChatOpenAI(
+        model=settings.AZURE_OPENAI_CHAT_MODEL,
+        openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+        temperature=0,
+    )
     return RetrievalQA.from_chain_type(
         llm=llm, retriever=retriever, return_source_documents=True
     )
@@ -60,7 +91,13 @@ def get_course_tool() -> Tool:
                 "Respond in this format: "
                 '{"course_highlights": [...], "related_topics": [...]}'
             )
-            scraper = ChatOpenAI(temperature=0)
+            scraper = AzureChatOpenAI(
+                model=settings.AZURE_OPENAI_CHAT_MODEL,
+                openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+                temperature=0,
+            )
             scraped = scraper.invoke(prompt).content
             try:
                 if isinstance(scraped, str):
@@ -104,7 +141,13 @@ def get_course_tool() -> Tool:
 
 def get_agent():
     tools = [get_course_tool()]
-    llm = ChatOpenAI(temperature=0)
+    llm = AzureChatOpenAI(
+        model=settings.AZURE_OPENAI_CHAT_MODEL,
+        openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_key=settings.AZURE_OPENAI_CHAT_API_KEY,
+        temperature=0,
+    )
     return initialize_agent(
         tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True
     )

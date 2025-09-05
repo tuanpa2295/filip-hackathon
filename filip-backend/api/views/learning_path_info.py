@@ -1,20 +1,30 @@
+import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from uuid import uuid4
 import datetime
 
+logger = logging.getLogger(__name__)
+
 class LearningPathInfoView(APIView):
     def post(self, request):
+        client_ip = request.META.get('REMOTE_ADDR', 'unknown')
+        logger.info(f"[LearningPathInfoView] Request started from IP: {client_ip}")
+        
         try:
             data = request.data
             courses = data.get("courses", [])
+            logger.info(f"[LearningPathInfoView] Processing {len(courses)} courses for learning path creation")
+            
             # Các trường cho learning_path
             learning_path_id = str(uuid4())
             start_date = data.get("start_date")
             end_date = data.get("end_date")
             estimated_hours = sum([float(c.get("duration", 0)) for c in courses])
             completed_hours = sum([float(c.get("progress", 0)) for c in courses])
+
+            logger.info(f"[LearningPathInfoView] Generated learning path ID: {learning_path_id}, estimated_hours: {estimated_hours}, completed_hours: {completed_hours}")
 
             learning_path = {
                 "id": learning_path_id,
@@ -47,6 +57,8 @@ class LearningPathInfoView(APIView):
                 }
                 learning_path_courses.append(course_dict)
 
+            logger.info(f"[LearningPathInfoView] Successfully created learning path with {len(learning_path_courses)} courses")
+
             response_data = {
                 "learning_path": learning_path,
                 "learning_path_courses": learning_path_courses,
@@ -55,4 +67,5 @@ class LearningPathInfoView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"[LearningPathInfoView] Error processing request from IP {client_ip}: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=500)
