@@ -1,0 +1,34 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: scripts/run_in_poetry.sh black
+        language: script
+        types: [python]
+
+      - id: isort
+        name: isort
+        entry: scripts/run_in_poetry.sh isort --profile black
+        language: script
+        types: [python]
+
+      - id: flake8
+        name: flake8
+        entry: scripts/run_in_poetry.sh flake8
+        language: script
+        types: [python]
+
+      - id: mypy
+        name: mypy
+        entry: scripts/run_in_poetry.sh mypy
+        language: script
+        types: [python]
+
+      - id: pytest
+        name: pytest
+        entry: scripts/run_in_poetry.sh pytest
+        language: script
+        pass_filenames: false
+        files: ^filip-backend/tests/.*\.py$
+        types: [python]

@@ -1,0 +1,48 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = [{ name = "reform hackaithon", email = "reform-hackaithon@fpt.com" }]
+readme = "README.md"
+requires-python = ">=3.11,<4"
+dependencies = [
+  "django (==5.2.1)",
+  "django-cors-headers (>=4.7.0,<5.0.0)",
+  "django-environ (>=0.12.0,<0.13.0)",
+  "djangorestframework (>=3.16.0,<4.0.0)",
+  "langchain (>=0.3.25,<0.4.0)",
+  "langchain-community (>=0.3.21,<0.3.24)", 
+  "langchain-openai (>=0.3.19,<0.4.0)",
+  "langchain-postgres (>=0.0.14,<0.0.15)",
+  "langgraph (>=0.4.8,<0.5.0)",
+  "openai (>=1.82.1,<2.0.0)",
+  "pgvector (>=0.2.5,<0.5.0)",
+  "psycopg (>=3.2.9,<4.0.0)",
+  "psycopg2-binary (>=2.9.10,<3.0.0)",
+  "pandas (>=2.2.3,<3.0.0)",
+  "drf-spectacular (>=0.28.0,<0.29.0)",
+  "sqlalchemy (>=2.0.41,<3.0.0)",
+  "tiktoken (>=0.9.0,<0.10.0)",
+  "scikit-learn (>=1.7.0,<2.0.0)",
+  "python-docx (>=1.1.2,<2.0.0)",
+  "textract (>=1.6.5,<2.0.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+django-stubs = "^5.2.0"
+flake8 = "^7.2.0"
+isort = "^6.0.1"
+mypy = "^1.16.0"
+pre-commit = "^4.2.0"
+pytest = "^8.4.0"
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+package-mode = false

@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Kubernetes",
+    "priority": "High",
+    "currentLevel": "Beginner",
+    "targetLevel": "Advanced",
+    "progress": 15,
+    "courses": [
+      {
+        "id": 1,
+        "title": "Kubernetes for Beginners",
+        "provider": "Udemy",
+        "instructor": "Mumshad Mannambeth",
+        "rating": 4.6,
+        "students": "142,589",
+        "duration": "6h 30m",
+        "price": "$54.99",
+        "level": "Beginner",
+        "isActive": true,
+        "progress": 45,
+        "skills": [
+          "Container Orchestration",
+          "Pod Management",
+          "Services & Networking"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Certified Kubernetes Administrator (CKA)",
+        "provider": "Coursera",
+        "instructor": "Google Cloud",
+        "rating": 4.8,
+        "students": "89,234",
+        "duration": "40 hours",
+        "price": "$49/month",
+        "level": "Intermediate",
+        "isActive": false,
+        "progress": 0,
+        "skills": ["Cluster Administration", "Security", "Troubleshooting"]
+      }
+    ]
+  },
+  {
+    "name": "TensorFlow",
+    "priority": "Medium",
+    "currentLevel": "Beginner",
+    "targetLevel": "Intermediate",
+    "progress": 8,
+    "courses": [
+      {
+        "id": 3,
+        "title": "TensorFlow 2.0 Complete Course",
+        "provider": "Udacity",
+        "instructor": "TensorFlow Team",
+        "rating": 4.7,
+        "students": "67,421",
+        "duration": "12 weeks",
+        "price": "$399/month",
+        "level": "Beginner",
+        "isActive": false,
+        "progress": 0,
+        "skills": ["Neural Networks", "Deep Learning", "Model Training"]
+      }
+    ]
+  },
+  {
+    "name": "GraphQL",
+    "priority": "Medium",
+    "currentLevel": "Beginner",
+    "targetLevel": "Intermediate",
+    "progress": 32,
+    "courses": [
+      {
+        "id": 4,
+        "title": "The Modern GraphQL Bootcamp",
+        "provider": "Udemy",
+        "instructor": "Andrew Mead",
+        "rating": 4.5,
+        "students": "45,123",
+        "duration": "13h 45m",
+        "price": "$64.99",
+        "level": "Beginner",
+        "isActive": false,
+        "progress": 32,
+        "skills": ["Query Language", "Schema Design", "Resolvers"]
+      }
+    ]
+  },
+  {
+    "name": "Cloud Architecture",
+    "priority": "High",
+    "currentLevel": "Beginner",
+    "targetLevel": "Advanced",
+    "progress": 0,
+    "courses": [
+      {
+        "id": 5,
+        "title": "AWS Solutions Architect Associate",
+        "provider": "Coursera",
+        "instructor": "Amazon Web Services",
+        "rating": 4.6,
+        "students": "156,789",
+        "duration": "60 hours",
+        "price": "$79/month",
+        "level": "Intermediate",
+        "isActive": false,
+        "progress": 0,
+        "skills": ["System Design", "Scalability", "Security Architecture"]
+      }
+    ]
+  }
+]
