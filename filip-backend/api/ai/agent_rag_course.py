@@ -9,37 +9,18 @@ from langchain_postgres.vectorstores import PGVector
 
 from filip import settings
 
-
 def get_retriever():
-    try:
-        # First try to connect to existing collection
-        vectorstore = PGVector.from_existing_index(
-            embedding=AzureOpenAIEmbeddings(
-                openai_api_version=settings.AZURE_OPENAI_API_VERSION,
-                azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
-                api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
-                model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
-            ),
-            connection=settings.PGVECTOR_CONNECTION,
-            collection_name="course",
-        )
-    except Exception as e:
-        # If collection exists but can't connect due to constraint violation,
-        # try creating a new PGVector instance directly
-        if "duplicate key value violates unique constraint" in str(e):
-            vectorstore = PGVector(
-                embedding_function=AzureOpenAIEmbeddings(
-                    openai_api_version=settings.AZURE_OPENAI_API_VERSION,
-                    azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
-                    api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
-                    model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
-                ),
-                connection=settings.PGVECTOR_CONNECTION,
-                collection_name="course",
-                pre_delete_collection=False,  # Don't delete existing collection
-            )
-        else:
-            raise e
+    # First try to connect to existing collection
+    vectorstore = PGVector.from_existing_index(
+        embedding=AzureOpenAIEmbeddings(
+            openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+            azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+            api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+            model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+        ),
+        connection=settings.PGVECTOR_CONNECTION,
+        collection_name="course",
+    )
     
     return vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
 

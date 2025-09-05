@@ -5,9 +5,16 @@ from django.db import transaction
 
 from api.models.udemy import UdemyCourse
 from api.utils.embedding import embed_text
+from langchain_postgres.vectorstores import PGVector
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain.schema import Document
+from langchain.schema.document import Document as LangchainDocument
+
+from filip import settings
 
 
 class Command(BaseCommand):
+
     help = "Generate and store OpenAI embeddings for UdemyCourse descriptions"
 
     def build_text(self, course):
@@ -23,6 +30,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         BATCH_SIZE = 100
+        # COLLECTION_NAME = "course"
 
         queryset = UdemyCourse.objects.filter(embedding__isnull=True)
         total = queryset.count()
@@ -59,6 +67,36 @@ class Command(BaseCommand):
                     UdemyCourse.objects.bulk_update(
                         updated, ["embedding"], batch_size=100
                     )
+
+                    # # Initialize embedder
+                    # embedder = AzureOpenAIEmbeddings(
+                    #     openai_api_version=settings.AZURE_OPENAI_API_VERSION,
+                    #     azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                    #     api_key=settings.AZURE_OPENAI_EMBEDDING_API_KEY,
+                    #     model=settings.AZURE_OPENAI_EMBEDDING_MODEL,
+                    # )
+
+                    # langchain_documents = []
+                    # for course in updated:
+                    #     content = self.build_text(course)  # Your existing method
+                    #     metadata = {
+                    #         "course_id": course.id,
+                    #         "title": course.title,
+                    #         "instructors": course.instructors,
+                    #         "level": course.level,
+                    #         "duration": course.duration,
+                    #         "price": course.price,
+                    #         "url": course.url,
+                    #     }
+                    #     langchain_documents.append(Document(page_content=content, metadata=metadata))
+
+                    # # Then use the Document objects
+                    # PGVector.from_documents(
+                    #     documents=langchain_documents,  # ✅ Correct Document objects
+                    #     embedding=embedder,
+                    #     connection=settings.PGVECTOR_CONNECTION,
+                    #     collection_name=COLLECTION_NAME,
+                    # )
 
             self.stdout.write(f"✅ Embedded {count}/{total}")
 
