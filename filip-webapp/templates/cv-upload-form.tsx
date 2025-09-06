@@ -70,7 +70,7 @@ const CVUploadForm = () => {
           </div>
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-3">
-          FSOFT Intelligent Learning Pathways
+          Intelligent Learning Pathways
           <span className="block text-2xl text-blue-600 font-medium mt-1">(FILIP)</span>
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

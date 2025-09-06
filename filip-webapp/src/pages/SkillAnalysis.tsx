@@ -198,10 +198,6 @@ export const SkillAnalysis: React.FC = () => {
                   </label>
                 </div>
               </div>
-              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
-                <span className="font-medium">Note:</span> Both options integrate FPT strategies for optimal learning
-                outcomes
-              </div>
             </div>
 
             {/* Dynamic input based on learning type */}
