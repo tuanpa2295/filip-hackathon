@@ -46,7 +46,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "34.50.85.140",
     "localhost",
-    "reform-hackaithon.fpt.healthcare",
+    "b43c8bbff316.ngrok.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://reform-hackaithon.fpt.healthcare"]
