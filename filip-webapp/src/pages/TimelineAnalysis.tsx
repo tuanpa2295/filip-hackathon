@@ -181,7 +181,7 @@ export const TimelineAnalysis: React.FC = () => {
             className="flex-1 bg-green-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
           >
             <Zap className="w-5 h-5" />
-            <span>Create My Learning Path</span>
+            <span>Create Personal Learning Path</span>
           </button>
 
           <button

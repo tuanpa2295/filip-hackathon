@@ -50,7 +50,7 @@ export const LearningPathList: React.FC = () => {
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Brain className="w-5 h-5 text-white" />
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900">FILIP | Fast-Track Your Skills with FPT’s AI-Generated Learning Path</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">FALP | Fast-Track Your Skills with AI-Generated Learning Path</span>
               </div>
             </div>
             <div className="flex items-center">
@@ -73,7 +73,7 @@ export const LearningPathList: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-left">
           <div className="md:flex md:items-center md:justify-between">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900">My Learning Paths</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Learning Paths</h1>
               <p className="mt-1 text-sm text-gray-600">Track your progress and continue your learning journey</p>
             </div>
             <div className="mt-4 md:mt-0 md:ml-4">
