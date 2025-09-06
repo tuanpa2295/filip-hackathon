@@ -39,6 +39,9 @@ export const TimelineAnalysis: React.FC = () => {
         course_rating: course.rating,
         course_skills: JSON.stringify(course.skills),
         course_highlights: JSON.stringify(course.highlights),
+        course_url: course.url,
+        course_provider: course.provider,
+        course_students: course.students,
       })),
     };
     await createLearningPath(payload)
