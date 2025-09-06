@@ -7,6 +7,7 @@ from api.views import (
     LearningPathViewSet,
     SkillAnalysisView,
     recommendations,
+    validation_metrics,
 )
 
 router = DefaultRouter()
@@ -27,4 +28,21 @@ urlpatterns = [
     ),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("skill-analysis/", SkillAnalysisView.as_view(), name="skill-analysis"),
+    
+    # Validation endpoints
+    path(
+        "validation/metrics",
+        validation_metrics.get_validation_metrics,
+        name="validation_metrics",
+    ),
+    path(
+        "validation/health",
+        validation_metrics.validation_health_check,
+        name="validation_health",
+    ),
+    path(
+        "validation/test",
+        validation_metrics.test_validation,
+        name="validation_test",
+    ),
 ]

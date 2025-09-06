@@ -29,7 +29,7 @@ class LearningPathCourse(models.Model):
     course_rating: models.FloatField = models.FloatField(default=3.5)
     course_skills: models.TextField = models.TextField(blank=True, default="[]")
     course_students: models.IntegerField = models.IntegerField(default=1989)
-    course_provider: models.TextField = models.TextField(default="")
+    course_provider: models.TextField = models.TextField(blank=True, default="Udemy")
     course_highlights: models.TextField = models.TextField(default="[]")
     course_progress: models.DecimalField = models.DecimalField(
         max_digits=5, decimal_places=2, default=0

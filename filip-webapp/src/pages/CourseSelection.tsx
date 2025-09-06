@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Brain, Target, Clock, AlertTriangle, CheckCircle, Star, 
-  ExternalLink, BookOpen, DollarSign, BarChart3, Settings
+  ExternalLink, BookOpen, DollarSign, BarChart3, Settings,
+  Shield, Lightbulb
 } from 'lucide-react';
 import type { Course } from '@/types/course';
 import type { Skill } from '@/types';
+import { ValidationDisplay } from '@/components/ValidationDisplay';
 
 
 export const CourseSelection: React.FC = () => {
@@ -14,6 +16,8 @@ export const CourseSelection: React.FC = () => {
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
   const [recomendedCourses, setRecomendedCourses] = useState<Course[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
+  const [validationResults, setValidationResults] = useState<any>(null);
+  const [showValidation, setShowValidation] = useState(false);
 
   // Use either provided selectedSkills or mock data
   const formatDate = (date = new Date()) => {
@@ -54,13 +58,26 @@ export const CourseSelection: React.FC = () => {
   useEffect(() => {
     if (location.state?.recommendations) {
       setRecomendedCourses(location.state.recommendations.courses);
+      
+      // Check for validation results in recommendations
+      if (location.state.recommendations.validation) {
+        setValidationResults(location.state.recommendations.validation);
+        setShowValidation(true);
+      }
     }
     if (location.state?.learningPreferences) {
       setLearningPreferences(location.state.learningPreferences);
     }
     const savedRecommendedCourses = localStorage.getItem("recommendedCourses");
     if (savedRecommendedCourses) {
-      setRecomendedCourses(JSON.parse(savedRecommendedCourses));
+      const parsed = JSON.parse(savedRecommendedCourses);
+      setRecomendedCourses(parsed.courses || parsed);
+      
+      // Check for validation results in saved data
+      if (parsed.validation) {
+        setValidationResults(parsed.validation);
+        setShowValidation(true);
+      }
     }
     const savedSelectedCourses = localStorage.getItem("selectedCourses");
     if (savedSelectedCourses) {
@@ -222,6 +239,44 @@ export const CourseSelection: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Validation Results */}
+          {validationResults && showValidation && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <Shield className="w-5 h-5 text-blue-600" />
+                <h2 className="text-xl font-semibold text-gray-900">AI Validation Results</h2>
+                <button
+                  onClick={() => setShowValidation(!showValidation)}
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                >
+                  {showValidation ? 'Hide' : 'Show'} Details
+                </button>
+              </div>
+              
+              <ValidationDisplay 
+                validation={validationResults} 
+                showDetails={true}
+                className="mb-4"
+              />
+              
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-start space-x-2">
+                  <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-900 text-sm mb-1">
+                      Enhanced AI Validation
+                    </h4>
+                    <p className="text-blue-700 text-sm">
+                      These recommendations have been validated using our multi-layer AI system 
+                      that checks semantic relevance, contextual accuracy, domain expertise, 
+                      and overall quality to ensure the best learning outcomes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Course Selection */}
           <div className="bg-white rounded-xl shadow-sm p-6">
