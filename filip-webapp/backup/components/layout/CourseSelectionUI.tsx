@@ -768,7 +768,7 @@ const CourseSelectionUI: React.FC<CourseSelectionUIProps> = ({
               <span>
                 {analysisResults.riskLevel === 'high' 
                   ? 'Fix Timeline Issues First' 
-                  : 'Create My Learning Path'
+                  : 'Create Learning Path'
                 }
               </span>
             </button>

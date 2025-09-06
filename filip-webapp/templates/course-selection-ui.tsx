@@ -689,7 +689,7 @@ const CourseSelectionUI = () => {
               <span>
                 {analysisResults.riskLevel === 'high' 
                   ? 'Fix Timeline Issues First' 
-                  : 'Create My Learning Path'
+                  : 'Create Personal Learning Path'
                 }
               </span>
             </button>

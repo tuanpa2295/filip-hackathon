@@ -62,7 +62,7 @@ def get_course_tool() -> Tool:
         courses = []
         for doc in result.get("source_documents", []):
             md = doc.metadata
-            url = md.get("URL", "")
+            url = md.get("url", "")
             # Ask the LLM to extract details from the URL
             prompt = (
                 f"Visit the following course page:\n{url}\n\n"
@@ -89,20 +89,19 @@ def get_course_tool() -> Tool:
 
             courses.append(
                 {
-                    "course_rating": md.get("Ratings", 0),
+                    "course_rating": md.get("rating", 0),
                     "target": str(datetime.date.today()),
-                    "course_level": md.get("Level", ""),
-                    "course_description": doc.page_content.split("\n")[0],
-                    "course_title": md.get("Title", ""),
-                    "course_duration": md.get("Duration", ""),
-                    "course_instructor": md.get("Instructors", "")
-                    or md.get("Instructor", ""),
-                    "course_price": md.get("Price", "") or md.get("Price (VND)", ""),
+                    "course_level": md.get("level", ""),
+                    "course_description": doc.page_content,
+                    "course_title": md.get("title", ""),
+                    "course_duration": md.get("duration", ""),
+                    "course_instructor": md.get("instructors", ""),
+                    "course_price": md.get("price", ""),
                     "course_url": url,
                     "course_skills": scraped_json["related_topics"],
                     "course_highlights": scraped_json["course_highlights"],
-                    "course_provider": md.get("Provider", ""),
-                    "course_students": md.get("Students", 0),
+                    "course_provider": md.get("provider", "Udemy"),
+                    "course_students": md.get("students", 0),
                 }
             )
         learning_path_name = extract_learning_path_name(result.get("result", ""))

@@ -12,7 +12,7 @@ This project is a modern React frontend bootstrapped with [Vite](https://vitejs.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/duongtq-fpt/reform-hackaithon
+git clone https://github.com/tuanpa2295/filip-hackathon
 cd filip-webapp
 ```
 

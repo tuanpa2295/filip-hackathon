@@ -332,7 +332,7 @@ export const CourseSelection: React.FC = () => {
                     </button>
                   </div>
                   
-                  {selectedCourses.includes(course) && (
+                  {selectedCourses.some(c => c.url === course.url) && (
                     <div className="mt-3 p-3 bg-blue-100 rounded-lg">
                       <div className="flex items-center space-x-2 text-blue-800 text-sm font-medium">
                         <CheckCircle className="w-4 h-4" />

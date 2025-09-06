@@ -51,9 +51,15 @@ class LearningPathInfoView(APIView):
                     "course_instructor": course.get("instructor", ""),
                     "course_price": course.get("price", ""),
                     "course_rating": float(course.get("rating", 0)),
-                    "course_skills": ", ".join(course.get("skills", [])) if isinstance(course.get("skills", []), list) else course.get("skills", ""),
+                    "course_skills": course.get("skills", []) if isinstance(course.get("skills", []), list) else [],
                     "course_progress": float(course.get("progress", 0)),
                     "course_status": course.get("course_status", "Not Started"),
+                    "course_url": course.get("url", ""),
+                    "course_provider": course.get("provider", ""),
+                    "course_students": int(course.get("students", 0)),
+                    "course_description": course.get("description", ""),
+                    "course_highlights": course.get("highlights", []) if isinstance(course.get("highlights", []), list) else [],
+                    "course_level": course.get("level", ""),
                 }
                 learning_path_courses.append(course_dict)
 

@@ -13,7 +13,7 @@ This repository contains the backend service built using **Django** and managed 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/duongtq-fpt/reform-hackaithon
+git clone https://github.com/tuanpa2295/filip-hackathon
 cd filip-backend
 ```
 

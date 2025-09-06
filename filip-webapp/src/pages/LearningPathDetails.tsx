@@ -163,10 +163,15 @@ export const LearningPathDetails: React.FC = () => {
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">{currentCourse.title}</h3>
                       <p className="text-sm text-gray-600">by {currentCourse.instructor}</p>
                     </div>
-                    <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                    <a 
+                      href={currentCourse.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                    >
                       <Play className="w-4 h-4" />
                       <span>Continue</span>
-                    </button>
+                    </a>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
@@ -378,10 +383,15 @@ export const LearningPathDetails: React.FC = () => {
                     </div>
 
                     {/* Course Action Button */}
-                    <button className="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                    <a 
+                      href={course.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                    >
                       <Play className="w-4 h-4" />
                       <span>{course.status === 'Current' ? 'Continue' : 'Start Course'}</span>
-                    </button>
+                    </a>
                   </div>
                 );
               })}
