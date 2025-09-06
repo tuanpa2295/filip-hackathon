@@ -167,7 +167,7 @@ export const LearningPathDetails: React.FC = () => {
                       href={currentCourse.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                      className="bg-green-600 !text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
                     >
                       <Play className="w-4 h-4" />
                       <span>Continue</span>
@@ -387,7 +387,7 @@ export const LearningPathDetails: React.FC = () => {
                       href={course.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                      className="w-full mt-4 bg-blue-600 !text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                     >
                       <Play className="w-4 h-4" />
                       <span>{course.status === 'Current' ? 'Continue' : 'Start Course'}</span>
