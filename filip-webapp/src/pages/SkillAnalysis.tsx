@@ -261,7 +261,7 @@ export const SkillAnalysis: React.FC = () => {
                     Upload CV
                   </label>
                 </div>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <input
                     id="akajob"
                     name="inputMethod"
@@ -274,7 +274,7 @@ export const SkillAnalysis: React.FC = () => {
                   <label htmlFor="akajob" className="ml-2 text-sm text-gray-700">
                     Sync with Akajob
                   </label>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -306,16 +306,20 @@ export const SkillAnalysis: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Upload Your CV</p>
-                    <p className="text-xs text-gray-500 mb-2">PDF, DOCX, TXT up to 10MB</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {uploadedFile ? `Selected: ${uploadedFile.name}` : 'Upload Your CV'}
+                    </p>
+                    <p className="text-xs text-gray-500 mb-2">DOCX up to 10MB</p>
                   </div>
 
                   <button
                     onClick={onButtonClick}
-                    className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 transition-colors flex items-center space-x-1"
+                    className={`${uploadedFile 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-blue-600 hover:bg-blue-700'} text-white px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1`}
                   >
                     <FileText className="w-3 h-3" />
-                    <span>Choose File</span>
+                    <span>{uploadedFile ? 'Change File' : 'Choose File'}</span>
                   </button>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import type { AnalysisResults, Skill } from '@/types';
 import type { Course } from '@/types/course';
 import axios from 'axios';
+import { handleAPIError } from './error';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
