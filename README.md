@@ -1,7 +1,3 @@
-Got it 👍 — I’ll fix your README so it’s cleaner, consistent, and free of small issues like garbled emoji and formatting problems. Here’s the improved version:
-
----
-
 # FALP - AI Learning Path
 
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
